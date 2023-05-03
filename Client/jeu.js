@@ -3,26 +3,28 @@ var boutonCommencer = document.querySelector('#jouer');
 var gagner = false;
 var bateauJoueur;
 var bateauAdversaire;
-var idJoueur = 0;
+var identifiantJoueurConnecte = 0;
 var nomJoueur = "Joueur 1";
 var roleJoueur = "joueur";
 var joueurPret = false;
 var adversairePret = false;
-var socket = io();
-socket.on('idJoueur', function (id) {
+var socketJeu = io();
+socketJeu.on('identifiantJoueur', function (id) {
+    console.log("Je parle !");
     console.log(id);
-    if (id === 666) {
+    if (id === 42) {
         var infoPartie = document.querySelector("#dernier-coup");
         infoPartie.innerHTML = "Trop de joueurs connectés.";
     }
     else {
-        idJoueur = Number(id);
-        if (idJoueur === 1) {
+        identifiantJoueurConnecte = Number(id);
+        if (identifiantJoueurConnecte === 1) {
             nomJoueur = "Joueur 2";
             roleJoueur = "adversaire";
         }
+        console.log("Debug : Le joueur ".concat(identifiantJoueurConnecte, " s'est connect\u00E9 !"));
     }
-    if (id = 666) {
+    if (id = 42) {
         return;
     }
 });
@@ -74,7 +76,7 @@ function tirer(_case) {
     }
 }
 function commencerPartie() {
-    console.log(idJoueur);
+    console.log(identifiantJoueurConnecte);
     var infoPartie = document.querySelector("#dernier-coup");
     infoPartie.innerHTML = "";
     if (bateaux.children.length > 0) {

@@ -4,7 +4,7 @@ let gagner = false
 let bateauJoueur: number
 let bateauAdversaire: number
 
-let idJoueur = 0
+let identifiantJoueurConnecte = 0
 let nomJoueur = "Joueur 1"
 let roleJoueur = "joueur"
 
@@ -15,22 +15,24 @@ let adversairePret = false
 
 
 
-const socket = io();
+const socketJeu = io();
 
-socket.on('idJoueur', (id: number) => {
+socketJeu.on('identifiantJoueur', (id: number) => {
+	console.log(`Je parle !`);
 	console.log(id)
-	if (id === 666) {
+	if (id === 42) {
 		const infoPartie = document.querySelector("#dernier-coup")
 		infoPartie!.innerHTML = "Trop de joueurs connectés."
 	} else {
-		idJoueur = Number(id)
-		if (idJoueur === 1) {
+		identifiantJoueurConnecte = Number(id)
+		if (identifiantJoueurConnecte === 1) {
 			nomJoueur = "Joueur 2"
 			roleJoueur = "adversaire"
 		}
+		console.log(`Debug : Le joueur ${identifiantJoueurConnecte} s'est connecté !`);
 	}
 
-	if (id = 666) {
+	if (id = 42) {
 		return
 	}
 
@@ -100,7 +102,7 @@ function tirer(_case: any) {
 }
 
 function commencerPartie() {
-	console.log(idJoueur)
+	console.log(identifiantJoueurConnecte)
 	const infoPartie = document.querySelector("#dernier-coup")
 	infoPartie!.innerHTML = ""
 	if (bateaux!.children.length > 0) {
