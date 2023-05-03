@@ -1,0 +1,110 @@
+body {
+	background-color : #fdfd96;
+	width:80%;
+	margin-left:auto;
+	margin-right:auto;
+  }
+
+
+.grille-jeu {
+	margin: 0px auto;
+    width: 400px;
+	height: 375px;
+	margin: 50px;
+    display: inline-block;
+	background-color: blueviolet;
+}
+
+.case-grille {
+	width: 40px;
+	height: 30px;
+}
+
+.eau {
+	background-color: #add8e6;
+}
+
+.bateaux {
+	width: 250px;
+	height: 100px;
+	display: flex;
+	margin: 20px;
+	flex-direction: row;
+
+}
+
+.bateau {
+	background-color: grey;
+}
+
+.bateau-5 {
+	width: 50px;
+	height: 10px;
+	background-color: grey;
+
+	margin: 5px;
+}
+
+.bateau-4 {
+	width: 40px;
+	height: 10px;
+	background-color: grey;
+
+	margin: 5px;
+}
+
+.bateau-3 {
+	width: 30px;
+	height: 10px;
+	background-color: grey;
+
+	margin: 5px;
+}
+
+.bateau-2 {
+	width: 20px;
+	height: 10px;
+	background-color: grey;
+
+	margin: 5px;
+}
+
+.bouton-jeu {
+	width: auto;
+	height: 25px;
+	margin : 5px;
+
+}
+
+.jouable {
+	background-color: darkblue;
+}
+
+.touche-joueur {
+	background-color: #bc544b;
+}
+
+.rate-joueur {
+	background-color: #aef359;
+}
+
+
+.touche-adversaire {
+	background-color: #aef359;
+}
+
+.rate-adversaire {
+	background-color: #bc544b;
+}
+
+.joueur-non-pret {
+	color: #bc544b;
+}
+
+.adversaire-non-pret {
+	color :#bc544b;
+}
+
+.nom-adversaire {
+	color : black;
+}
