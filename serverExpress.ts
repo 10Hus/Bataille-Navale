@@ -12,11 +12,11 @@ app.use(express.static(path.join(__dirname, 'Client')))
 
 server.listen(port, () => {
     console.log(`Running at localhost:${port}`);
-  });
+});
 
 
-const joueurConnections : any[] = [null, null]
-io.on("connection", (...params : any) => {
+const joueurConnections: any[] = [null, null]
+io.on("connection", (...params: any) => {
     let idJoueur = 666
     let place = false
     let i = 0
@@ -31,10 +31,10 @@ io.on("connection", (...params : any) => {
     }
 
     io.emit('idJoueur', idJoueur)
-    console.log(`Le joueur ${idJoueur+1} s'est connecté.`);
+    console.log(`Le joueur ${idJoueur + 1} s'est connecté.`);
 
-    if (idJoueur === 666){
+    if (idJoueur === 666) {
         return
-    }    
+    }
 });
 

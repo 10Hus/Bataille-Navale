@@ -1,17 +1,16 @@
 body {
-	background-color : #fdfd96;
-	width:80%;
-	margin-left:auto;
-	margin-right:auto;
-  }
-
+	background-color: #fdfd96;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
 
 .grille-jeu {
 	margin: 0px auto;
-    width: 400px;
+	width: 400px;
 	height: 375px;
 	margin: 50px;
-    display: inline-block;
+	display: inline-block;
 	background-color: blueviolet;
 }
 
@@ -30,7 +29,6 @@ body {
 	display: flex;
 	margin: 20px;
 	flex-direction: row;
-
 }
 
 .bateau {
@@ -41,7 +39,6 @@ body {
 	width: 50px;
 	height: 10px;
 	background-color: grey;
-
 	margin: 5px;
 }
 
@@ -49,7 +46,6 @@ body {
 	width: 40px;
 	height: 10px;
 	background-color: grey;
-
 	margin: 5px;
 }
 
@@ -57,7 +53,6 @@ body {
 	width: 30px;
 	height: 10px;
 	background-color: grey;
-
 	margin: 5px;
 }
 
@@ -65,15 +60,13 @@ body {
 	width: 20px;
 	height: 10px;
 	background-color: grey;
-
 	margin: 5px;
 }
 
 .bouton-jeu {
 	width: auto;
 	height: 25px;
-	margin : 5px;
-
+	margin: 5px;
 }
 
 .jouable {
@@ -88,7 +81,6 @@ body {
 	background-color: #aef359;
 }
 
-
 .touche-adversaire {
 	background-color: #aef359;
 }
@@ -102,9 +94,9 @@ body {
 }
 
 .adversaire-non-pret {
-	color :#bc544b;
+	color: #bc544b;
 }
 
 .nom-adversaire {
-	color : black;
+	color: black;
 }

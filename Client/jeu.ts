@@ -1,8 +1,8 @@
 const bateaux = document.querySelector('.bateaux')
 const boutonCommencer = document.querySelector('#jouer')
 let gagner = false
-let bateauJoueur : number
-let bateauAdversaire : number
+let bateauJoueur: number
+let bateauAdversaire: number
 
 let idJoueur = 0
 let nomJoueur = "Joueur 1"
@@ -17,7 +17,7 @@ let adversairePret = false
 
 const socket = io();
 
-socket.on('idJoueur', (id : number) => {
+socket.on('idJoueur', (id: number) => {
 	console.log(id)
 	if (id === 666) {
 		const infoPartie = document.querySelector("#dernier-coup")
@@ -33,7 +33,7 @@ socket.on('idJoueur', (id : number) => {
 	if (id = 666) {
 		return
 	}
-	
+
 })
 
 
@@ -42,14 +42,14 @@ socket.on('idJoueur', (id : number) => {
 
 
 
-function verifierGagner(){
+function verifierGagner() {
 	return !bateauJoueur || !bateauAdversaire
 }
 
-function tirer(_case : any) {
+function tirer(_case: any) {
 	let etat
 	if (!gagner) {
-		if (_case.target.classList.contains('occupee')){
+		if (_case.target.classList.contains('occupee')) {
 			etat = "touché"
 			bateauAdversaire--
 
@@ -60,9 +60,9 @@ function tirer(_case : any) {
 
 			const caseClasses = _case.target.classList
 			console.log(caseClasses)
-			
+
 			gagner = verifierGagner()
-			
+
 		} else {
 			etat = "raté"
 			_case.target.classList.remove("cliquable")
@@ -76,17 +76,17 @@ function tirer(_case : any) {
 	const tourPartie = document.querySelector("#joueur")
 
 	// parce que je suis vraiment trop con à avoir commencer mes id a 1 personne fait ça wtf
-	const correspondance = ['NULL', 
-							'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10',
-							'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10',
-							'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10',
-							'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10',
-							'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9', 'E10',
-							'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10',
-							'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10',
-							'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8', 'H9', 'H10',
-							'I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7', 'I8', 'I9', 'I10',
-							'J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7', 'J8', 'J9', 'J10']
+	const correspondance = ['NULL',
+		'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10',
+		'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10',
+		'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10',
+		'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10',
+		'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9', 'E10',
+		'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10',
+		'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10',
+		'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8', 'H9', 'H10',
+		'I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7', 'I8', 'I9', 'I10',
+		'J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7', 'J8', 'J9', 'J10']
 
 	infoPartie!.innerHTML = `${tourPartie?.innerHTML} a ${etat} ${correspondance[Number(_case.target.id)]}`
 
@@ -95,20 +95,20 @@ function tirer(_case : any) {
 	} else {
 		tourPartie!.innerHTML = tourPartie!.innerHTML === "Joueur 1" ? "Joueur 2" : "Joueur 1"
 	}
-	
-	
+
+
 }
 
 function commencerPartie() {
 	console.log(idJoueur)
 	const infoPartie = document.querySelector("#dernier-coup")
-	infoPartie!.innerHTML = ""	
+	infoPartie!.innerHTML = ""
 	if (bateaux!.children.length > 0) {
 		infoPartie!.innerHTML = "Placer tout vos bateaux avant de lancer la partie"
 
 		bateauJoueur = 18
 		bateauAdversaire = 18
-		
+
 	} else {
 		const tourPartie = document.querySelector("#joueur")
 		tourPartie!.innerHTML = Math.random() < 0.5 ? "Joueur 1" : "Joueur 2"
@@ -127,13 +127,13 @@ function commencerPartie() {
 
 boutonCommencer?.addEventListener('click', commencerPartie)
 
-interface BATEAU{
-	readonly Taille : number;
+interface BATEAU {
+	readonly Taille: number;
 }
 
 const divGrilleJeu = document.querySelector('#grille')
 
-function creerGrille(mode : string, nom : string){
+function creerGrille(mode: string, nom: string) {
 	const grilleJeu = document.createElement('table')
 	grilleJeu.style.padding = "0"
 	grilleJeu.style.borderSpacing = "5"
@@ -147,25 +147,25 @@ function creerGrille(mode : string, nom : string){
 	if (mode === "adversaire") {
 		grilleJeu.querySelectorAll("td").forEach((td) => {
 
-			if (td.classList.contains("cliquable")){
+			if (td.classList.contains("cliquable")) {
 				td.onpointerenter = () => {
 					td.classList.add("jouable")
 				}
-	
+
 				td.onpointerleave = () => {
 					td.classList.remove("jouable")
 				}
 			}
 		})
 	}
-	
-	
+
+
 
 	divGrilleJeu?.append(grilleJeu)
 
 }
 
-function creerEntete(grilleJeu : HTMLTableElement) {
+function creerEntete(grilleJeu: HTMLTableElement) {
 
 	const entete = document.createElement('tr')
 	entete.style.backgroundColor = "#ffffff"
@@ -176,7 +176,7 @@ function creerEntete(grilleJeu : HTMLTableElement) {
 
 	entete.append(celluleVide)
 
-	for(let i = 0 ; i < 10 ; i++){
+	for (let i = 0; i < 10; i++) {
 		let enteteCellule = document.createElement('th')
 		enteteCellule.style.verticalAlign = "center"
 		enteteCellule.style.alignContent = "center"
@@ -188,31 +188,31 @@ function creerEntete(grilleJeu : HTMLTableElement) {
 	grilleJeu.append(entete)
 }
 
-function creerLignes(grilleJeu : HTMLTableElement, mode : string) {
+function creerLignes(grilleJeu: HTMLTableElement, mode: string) {
 
-	for(let i = 0 ; i < 10 ; i++){
+	for (let i = 0; i < 10; i++) {
 		const ligne = document.createElement('tr')
 		ligne.style.backgroundColor = "#ffffff"
-		
+
 		const numeroCellule = document.createElement('td')
 		numeroCellule.style.textAlign = "center"
 		numeroCellule.style.verticalAlign = "middle"
 		numeroCellule.classList.add('case-grille')
-		numeroCellule.append(`${i+1}`)
+		numeroCellule.append(`${i + 1}`)
 		ligne.append(numeroCellule)
 
-		for(let j = 0 ; j < 10 ; j++){
+		for (let j = 0; j < 10; j++) {
 			const cellule = document.createElement('td')
 			cellule.classList.add("case-grille")
 			cellule.classList.add("eau")
-			if(mode === 'adversaire'){
+			if (mode === 'adversaire') {
 				cellule.classList.add('cliquable')
 			}
-			cellule.id = `${10*i + (j+1)}`
+			cellule.id = `${10 * i + (j + 1)}`
 
 			ligne.append(cellule)
 		}
-		
+
 		grilleJeu.append(ligne)
 	}
 }
@@ -221,68 +221,68 @@ creerGrille("joueur", nomJoueur)
 creerGrille("adversaire", "En attente...")
 
 
-const porteAvions : BATEAU = {Taille : 5};
-const croiseur : BATEAU = {Taille : 4};
-const contreTorpilleur1 : BATEAU = {Taille : 3};
-const contreTorpilleur2 : BATEAU = {Taille : 3};
-const torpilleur : BATEAU = {Taille : 2};
+const porteAvions: BATEAU = { Taille: 5 };
+const croiseur: BATEAU = { Taille: 4 };
+const contreTorpilleur1: BATEAU = { Taille: 3 };
+const contreTorpilleur2: BATEAU = { Taille: 3 };
+const torpilleur: BATEAU = { Taille: 2 };
 
 const BATEAUX = [porteAvions, croiseur, contreTorpilleur1, contreTorpilleur2, torpilleur]
 
 
-let bateauSelectionne : any
+let bateauSelectionne: any
 
-function placerBateau(bateau : BATEAU, emplacement : number) {
+function placerBateau(bateau: BATEAU, emplacement: number) {
 	const casesJouables = document.querySelectorAll('#joueur td.eau')
 	const orientation = bateaux?.getAttribute("id")
 	console.log(emplacement)
-	let emplacementValide : any
-	let limite = Math.ceil(emplacement/10)*10
+	let emplacementValide: any
+	let limite = Math.ceil(emplacement / 10) * 10
 	//console.log(limite)
 
-	if(orientation === 'horizontaux') {
-		if(emplacement <= limite - bateau.Taille) {
+	if (orientation === 'horizontaux') {
+		if (emplacement <= limite - bateau.Taille) {
 			emplacementValide = emplacement
 		} else {
 			emplacementValide = limite - (bateau.Taille - 1)
 		}
 	} else {
-		if(emplacement <= 100 - 10*bateau.Taille) {
+		if (emplacement <= 100 - 10 * bateau.Taille) {
 			emplacementValide = emplacement
 		} else {
-			emplacementValide = emplacement - 10*bateau.Taille + 10
+			emplacementValide = emplacement - 10 * bateau.Taille + 10
 		}
 	}
 
-	
+
 	console.log(emplacementValide)
 
 	let casesBateau: Element[] = []
 
-	for(let i = 0 ; i < bateau.Taille ; i++)
+	for (let i = 0; i < bateau.Taille; i++)
 		if (orientation === 'horizontaux') {
 			console.log(casesJouables[Number(emplacementValide) + i - 1])
 			casesBateau.push(casesJouables[Number(emplacementValide) + i - 1])
 		} else {
-			casesBateau.push(casesJouables[Number(emplacementValide) + 10*i - 1])
+			casesBateau.push(casesJouables[Number(emplacementValide) + 10 * i - 1])
 		}
 
 	console.log(casesBateau)
 
-	let valide 
+	let valide
 
-	if(orientation === 'horizontaux') {
+	if (orientation === 'horizontaux') {
 		casesBateau.every((_case, indice) => {
 			if (emplacement > 90) {
 				valide = Number(casesBateau[0].id) % 10 - 1 <= 10 - (casesBateau.length - indice)
 			} else {
 				valide = Number(casesBateau[0].id) % 10 <= 10 - (casesBateau.length - indice)
 			}
-			
+
 		})
 	} else {
 		casesBateau.every((_case, indice) => {
-			valide = Number(casesBateau[0].id) < 90 + (10*indice + 1)
+			valide = Number(casesBateau[0].id) < 90 + (10 * indice + 1)
 		})
 	}
 
@@ -292,7 +292,7 @@ function placerBateau(bateau : BATEAU, emplacement : number) {
 
 	console.log(libre)
 
-	if(valide && libre) {
+	if (valide && libre) {
 		casesBateau.forEach(_case => {
 			_case.classList.add(`${emplacementValide}-${bateau.Taille}`)
 			_case.classList.add("bateau")
@@ -312,7 +312,7 @@ placementBateaux.forEach(placementBateau => {
 
 
 
-function selectionnerBateau(bateau : any) {
+function selectionnerBateau(bateau: any) {
 	bateauSelectionne = bateau.target
 }
 
@@ -323,11 +323,11 @@ casesJouables.forEach(casejouable => {
 	casejouable.addEventListener('drop', placer)
 })
 
-function placement(bateau : any) {
+function placement(bateau: any) {
 	bateau.preventDefault()
 }
 
-function placer(bateau : any) {
+function placer(bateau: any) {
 	const emplacement = bateau.target.id
 	const bateauId = BATEAUX[Number(bateauSelectionne.id)]
 	placerBateau(bateauId, emplacement)
@@ -353,10 +353,10 @@ function tournerBateaux() {
 		listeBateaux.forEach(listeBateaux => {
 			listeBateaux.style.transform = "";
 		})
-		bateaux?.setAttribute("id", "horizontaux")		
+		bateaux?.setAttribute("id", "horizontaux")
 	}
 
-	
+
 }
 
 boutonTourner?.addEventListener('click', tournerBateaux)
