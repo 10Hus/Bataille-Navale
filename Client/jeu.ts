@@ -1,41 +1,113 @@
-const bateaux = document.querySelector('.bateaux')
-const boutonCommencer = document.querySelector('#jouer')
-let gagner = false
+////////////////////
+//   CONSTANTES   //
+////////////////////
+
+// Identifiant de connexion arbitraire (exporter pour jeu.ts)
+const PERSONNE = 42;
+
+// Sélectionne le premier élément de la page HTML qui a un identifiant "info-serveur"
+const INFO_SERVEUR = document.querySelector("#info-serveur")
+
+////////////////////////////////////////////////////////////////////////////
+
+// Sélectionne le premier élément de la page HTML qui a une classe "bateaux"
+const SELECTEUR_BATEAUX = document.querySelector('.bateaux')
+
+// Sélectionne le premier élément de la page HTML qui a un identifiant "jouer"
+const BOUTON_COMMENCER = document.querySelector('#jouer')
+
+
+
+///////////////////
+//   VARIABLES   //
+///////////////////
+
+// Création d'un "identifiantJoueurConnecte" le temps qu'une connexion arrive
+let identifiantJoueurConnecte = PERSONNE
+
+// Nom du joueur
+let nomJoueur = "";
+
+// Rôle du joueur
+let roleJoueur = "";
+
+////////////////////////////////////////////////////////////////////////////
+
+// Indiquer s'il y a gagnant
+let gagnant = false
+
+// ??? Nombre de bateau du joueur courant
 let bateauJoueur: number
+
+// ??? Nombre de bateau de l'adversaire
 let bateauAdversaire: number
 
-let identifiantJoueurConnecte = 0
-let nomJoueur = "Joueur 1"
-let roleJoueur = "joueur"
-
+// État du joueur
 let joueurPret = false
+
+// État de l'adversaire
 let adversairePret = false
 
 
 
+////////////////
+//   Client   //
+////////////////
 
-
+// Connexion du client au serveur avec Socket.io
 const socketJeu = io();
 
-socketJeu.on('identifiantJoueur', (id: number) => {
-	console.log(`Je parle !`);
-	console.log(id)
-	if (id === 42) {
-		const infoPartie = document.querySelector("#dernier-coup")
-		infoPartie!.innerHTML = "Trop de joueurs connectés."
+
+
+///////////////////
+//   Événement   //
+///////////////////
+
+// Écoute de l'événement 'identifiantJoueur' émis par le serveur
+socketJeu.on('idJoueur', (idJoueur: number) => {
+
+	console.log(`Debug : Évènement "identifiantJoueur" reçu !`);
+	console.log(`Debug : idJoueur vaut : ` + idJoueur);
+
+	// Si trop de joueurs sont connectés
+	if (idJoueur === PERSONNE) {
+
+		// Mise à jour de INFO_SERVEUR dans la page HTML
+		INFO_SERVEUR!.innerHTML = "Trop de joueurs sont connectés !"
+	
+	// S'il y a moins de 3 joueurs connectés
 	} else {
-		identifiantJoueurConnecte = Number(id)
-		if (identifiantJoueurConnecte === 1) {
+
+		// Récupération de l'identifiant du joueur qui vient de se connecter
+		identifiantJoueurConnecte = Number(idJoueur)
+
+		// Si c'est le Joueur 1
+		if (identifiantJoueurConnecte === 0) {
+			
+			// Nom du joueur
+			nomJoueur = "Joueur 1"
+
+			// Rôle du joueur
+			roleJoueur = "joueur"
+
+		// Si c'est le Joueur 2
+		} else if (identifiantJoueurConnecte === 1) {
+
+			// Nom du joueur
 			nomJoueur = "Joueur 2"
+
+			// Rôle du joueur
 			roleJoueur = "adversaire"
+		
+		// Si c'est le Joueur X
+		} else {
+
+			console.log(`Erreur : identifiant du joueur connecté inconnu !`);
+
+			// On s'arrête
+			return
 		}
-		console.log(`Debug : Le joueur PAULLLLLLLLLL ${identifiantJoueurConnecte} s'est connecté !`);
 	}
-
-	if (id = 42) {
-		return
-	}
-
 })
 
 
@@ -50,7 +122,7 @@ function verifierGagner() {
 
 function tirer(_case: any) {
 	let etat
-	if (!gagner) {
+	if (!gagnant) {
 		if (_case.target.classList.contains('occupee')) {
 			etat = "touché"
 			bateauAdversaire--
@@ -63,7 +135,7 @@ function tirer(_case: any) {
 			const caseClasses = _case.target.classList
 			console.log(caseClasses)
 
-			gagner = verifierGagner()
+			gagnant = verifierGagner()
 
 		} else {
 			etat = "raté"
@@ -92,7 +164,7 @@ function tirer(_case: any) {
 
 	infoPartie!.innerHTML = `${tourPartie?.innerHTML} a ${etat} ${correspondance[Number(_case.target.id)]}`
 
-	if (gagner) {
+	if (gagnant) {
 		tourPartie!.innerHTML = `VICTOIRE de ${tourPartie!.innerHTML}`
 	} else {
 		tourPartie!.innerHTML = tourPartie!.innerHTML === "Joueur 1" ? "Joueur 2" : "Joueur 1"
@@ -105,7 +177,7 @@ function commencerPartie() {
 	console.log(identifiantJoueurConnecte)
 	const infoPartie = document.querySelector("#dernier-coup")
 	infoPartie!.innerHTML = ""
-	if (bateaux!.children.length > 0) {
+	if (SELECTEUR_BATEAUX!.children.length > 0) {
 		infoPartie!.innerHTML = "Placer tout vos bateaux avant de lancer la partie"
 
 		bateauJoueur = 18
@@ -114,7 +186,7 @@ function commencerPartie() {
 	} else {
 		const tourPartie = document.querySelector("#joueur")
 		tourPartie!.innerHTML = Math.random() < 0.5 ? "Joueur 1" : "Joueur 2"
-		boutonCommencer?.removeEventListener('click', commencerPartie)
+		BOUTON_COMMENCER?.removeEventListener('click', commencerPartie)
 
 
 		const casesCliquables = document.querySelectorAll("#adversaire td")
@@ -127,7 +199,7 @@ function commencerPartie() {
 	}
 }
 
-boutonCommencer?.addEventListener('click', commencerPartie)
+BOUTON_COMMENCER?.addEventListener('click', commencerPartie)
 
 interface BATEAU {
 	readonly Taille: number;
@@ -236,7 +308,7 @@ let bateauSelectionne: any
 
 function placerBateau(bateau: BATEAU, emplacement: number) {
 	const casesJouables = document.querySelectorAll('#joueur td.eau')
-	const orientation = bateaux?.getAttribute("id")
+	const orientation = SELECTEUR_BATEAUX?.getAttribute("id")
 	console.log(emplacement)
 	let emplacementValide: any
 	let limite = Math.ceil(emplacement / 10) * 10
@@ -307,7 +379,7 @@ function placerBateau(bateau: BATEAU, emplacement: number) {
 }
 
 
-const placementBateaux = Array.prototype.slice.call(bateaux?.children)
+const placementBateaux = Array.prototype.slice.call(SELECTEUR_BATEAUX?.children)
 placementBateaux.forEach(placementBateau => {
 	placementBateau.addEventListener("dragstart", selectionnerBateau)
 })
@@ -342,20 +414,20 @@ function tournerBateaux() {
 	const textBoutonTourner = document.querySelector('#orientation')
 	textBoutonTourner!.innerHTML = textBoutonTourner?.innerHTML === "verticaux" ? "horizontaux" : "verticaux"
 
-	const listeBateaux = Array.prototype.slice.call(bateaux?.children);
+	const listeBateaux = Array.prototype.slice.call(SELECTEUR_BATEAUX?.children);
 	console.log()
 
 
-	if (bateaux?.getAttribute("id") === "horizontaux") {
+	if (SELECTEUR_BATEAUX?.getAttribute("id") === "horizontaux") {
 		listeBateaux.forEach(listeBateaux => {
 			listeBateaux.style.transform = 'rotate(90deg)';
 		})
-		bateaux?.setAttribute("id", "verticaux")
+		SELECTEUR_BATEAUX?.setAttribute("id", "verticaux")
 	} else {
 		listeBateaux.forEach(listeBateaux => {
 			listeBateaux.style.transform = "";
 		})
-		bateaux?.setAttribute("id", "horizontaux")
+		SELECTEUR_BATEAUX?.setAttribute("id", "horizontaux")
 	}
 
 

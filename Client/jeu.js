@@ -1,31 +1,76 @@
-var bateaux = document.querySelector('.bateaux');
-var boutonCommencer = document.querySelector('#jouer');
-var gagner = false;
+////////////////////
+//   CONSTANTES   //
+////////////////////
+// Identifiant de connexion arbitraire (exporter pour jeu.ts)
+var PERSONNE = 42;
+// Sélectionne le premier élément de la page HTML qui a un identifiant "info-serveur"
+var INFO_SERVEUR = document.querySelector("#info-serveur");
+////////////////////////////////////////////////////////////////////////////
+// Sélectionne le premier élément de la page HTML qui a une classe "bateaux"
+var SELECTEUR_BATEAUX = document.querySelector('.bateaux');
+// Sélectionne le premier élément de la page HTML qui a un identifiant "jouer"
+var BOUTON_COMMENCER = document.querySelector('#jouer');
+///////////////////
+//   VARIABLES   //
+///////////////////
+// Création d'un "identifiantJoueurConnecte" le temps qu'une connexion arrive
+var identifiantJoueurConnecte = PERSONNE;
+// Nom du joueur
+var nomJoueur = "";
+// Rôle du joueur
+var roleJoueur = "";
+////////////////////////////////////////////////////////////////////////////
+// Indiquer s'il y a gagnant
+var gagnant = false;
+// ??? Nombre de bateau du joueur courant
 var bateauJoueur;
+// ??? Nombre de bateau de l'adversaire
 var bateauAdversaire;
-var identifiantJoueurConnecte = 0;
-var nomJoueur = "Joueur 1";
-var roleJoueur = "joueur";
+// État du joueur
 var joueurPret = false;
+// État de l'adversaire
 var adversairePret = false;
+////////////////
+//   Client   //
+////////////////
+// Connexion du client au serveur avec Socket.io
 var socketJeu = io();
-socketJeu.on('identifiantJoueur', function (id) {
-    console.log("Je parle !");
-    console.log(id);
-    if (id === 42) {
-        var infoPartie = document.querySelector("#dernier-coup");
-        infoPartie.innerHTML = "Trop de joueurs connectés.";
+///////////////////
+//   Événement   //
+///////////////////
+// Écoute de l'événement 'identifiantJoueur' émis par le serveur
+socketJeu.on('idJoueur', function (idJoueur) {
+    console.log("Debug : \u00C9v\u00E8nement \"identifiantJoueur\" re\u00E7u !");
+    console.log("Debug : idJoueur vaut : " + idJoueur);
+    // Si trop de joueurs sont connectés
+    if (idJoueur === PERSONNE) {
+        // Mise à jour de INFO_SERVEUR dans la page HTML
+        INFO_SERVEUR.innerHTML = "Trop de joueurs sont connectés !";
+        // S'il y a moins de 3 joueurs connectés
     }
     else {
-        identifiantJoueurConnecte = Number(id);
-        if (identifiantJoueurConnecte === 1) {
-            nomJoueur = "Joueur 2";
-            roleJoueur = "adversaire";
+        // Récupération de l'identifiant du joueur qui vient de se connecter
+        identifiantJoueurConnecte = Number(idJoueur);
+        // Si c'est le Joueur 1
+        if (identifiantJoueurConnecte === 0) {
+            // Nom du joueur
+            nomJoueur = "Joueur 1";
+            // Rôle du joueur
+            roleJoueur = "joueur";
+            // Si c'est le Joueur 2
         }
-        console.log("Debug : Le joueur PAULLLLLLLLLL ".concat(identifiantJoueurConnecte, " s'est connect\u00E9 !"));
-    }
-    if (id = 42) {
-        return;
+        else if (identifiantJoueurConnecte === 1) {
+            // Nom du joueur
+            nomJoueur = "Joueur 2";
+            // Rôle du joueur
+            roleJoueur = "adversaire";
+            // Si c'est le Joueur X
+        }
+        else {
+            console.log("Erreur : identifiant du joueur connect\u00E9 inconnu !");
+            // On s'arrête
+            return;
+        }
     }
 });
 function verifierGagner() {
@@ -33,7 +78,7 @@ function verifierGagner() {
 }
 function tirer(_case) {
     var etat;
-    if (!gagner) {
+    if (!gagnant) {
         if (_case.target.classList.contains('occupee')) {
             etat = "touché";
             bateauAdversaire--;
@@ -43,7 +88,7 @@ function tirer(_case) {
             _case.target.classList.add("touche-adversaire");
             var caseClasses = _case.target.classList;
             console.log(caseClasses);
-            gagner = verifierGagner();
+            gagnant = verifierGagner();
         }
         else {
             etat = "raté";
@@ -68,7 +113,7 @@ function tirer(_case) {
         'I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7', 'I8', 'I9', 'I10',
         'J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7', 'J8', 'J9', 'J10'];
     infoPartie.innerHTML = "".concat(tourPartie === null || tourPartie === void 0 ? void 0 : tourPartie.innerHTML, " a ").concat(etat, " ").concat(correspondance[Number(_case.target.id)]);
-    if (gagner) {
+    if (gagnant) {
         tourPartie.innerHTML = "VICTOIRE de ".concat(tourPartie.innerHTML);
     }
     else {
@@ -79,7 +124,7 @@ function commencerPartie() {
     console.log(identifiantJoueurConnecte);
     var infoPartie = document.querySelector("#dernier-coup");
     infoPartie.innerHTML = "";
-    if (bateaux.children.length > 0) {
+    if (SELECTEUR_BATEAUX.children.length > 0) {
         infoPartie.innerHTML = "Placer tout vos bateaux avant de lancer la partie";
         bateauJoueur = 18;
         bateauAdversaire = 18;
@@ -87,7 +132,7 @@ function commencerPartie() {
     else {
         var tourPartie = document.querySelector("#joueur");
         tourPartie.innerHTML = Math.random() < 0.5 ? "Joueur 1" : "Joueur 2";
-        boutonCommencer === null || boutonCommencer === void 0 ? void 0 : boutonCommencer.removeEventListener('click', commencerPartie);
+        BOUTON_COMMENCER === null || BOUTON_COMMENCER === void 0 ? void 0 : BOUTON_COMMENCER.removeEventListener('click', commencerPartie);
         var casesCliquables = document.querySelectorAll("#adversaire td");
         casesCliquables.forEach(function (td) {
             if (td.classList.contains("cliquable")) {
@@ -96,7 +141,7 @@ function commencerPartie() {
         });
     }
 }
-boutonCommencer === null || boutonCommencer === void 0 ? void 0 : boutonCommencer.addEventListener('click', commencerPartie);
+BOUTON_COMMENCER === null || BOUTON_COMMENCER === void 0 ? void 0 : BOUTON_COMMENCER.addEventListener('click', commencerPartie);
 var divGrilleJeu = document.querySelector('#grille');
 function creerGrille(mode, nom) {
     var grilleJeu = document.createElement('table');
@@ -172,7 +217,7 @@ var BATEAUX = [porteAvions, croiseur, contreTorpilleur1, contreTorpilleur2, torp
 var bateauSelectionne;
 function placerBateau(bateau, emplacement) {
     var casesJouables = document.querySelectorAll('#joueur td.eau');
-    var orientation = bateaux === null || bateaux === void 0 ? void 0 : bateaux.getAttribute("id");
+    var orientation = SELECTEUR_BATEAUX === null || SELECTEUR_BATEAUX === void 0 ? void 0 : SELECTEUR_BATEAUX.getAttribute("id");
     console.log(emplacement);
     var emplacementValide;
     var limite = Math.ceil(emplacement / 10) * 10;
@@ -234,7 +279,7 @@ function placerBateau(bateau, emplacement) {
         bateauJoueur++;
     }
 }
-var placementBateaux = Array.prototype.slice.call(bateaux === null || bateaux === void 0 ? void 0 : bateaux.children);
+var placementBateaux = Array.prototype.slice.call(SELECTEUR_BATEAUX === null || SELECTEUR_BATEAUX === void 0 ? void 0 : SELECTEUR_BATEAUX.children);
 placementBateaux.forEach(function (placementBateau) {
     placementBateau.addEventListener("dragstart", selectionnerBateau);
 });
@@ -258,19 +303,19 @@ var boutonTourner = document.querySelector('#tourner');
 function tournerBateaux() {
     var textBoutonTourner = document.querySelector('#orientation');
     textBoutonTourner.innerHTML = (textBoutonTourner === null || textBoutonTourner === void 0 ? void 0 : textBoutonTourner.innerHTML) === "verticaux" ? "horizontaux" : "verticaux";
-    var listeBateaux = Array.prototype.slice.call(bateaux === null || bateaux === void 0 ? void 0 : bateaux.children);
+    var listeBateaux = Array.prototype.slice.call(SELECTEUR_BATEAUX === null || SELECTEUR_BATEAUX === void 0 ? void 0 : SELECTEUR_BATEAUX.children);
     console.log();
-    if ((bateaux === null || bateaux === void 0 ? void 0 : bateaux.getAttribute("id")) === "horizontaux") {
+    if ((SELECTEUR_BATEAUX === null || SELECTEUR_BATEAUX === void 0 ? void 0 : SELECTEUR_BATEAUX.getAttribute("id")) === "horizontaux") {
         listeBateaux.forEach(function (listeBateaux) {
             listeBateaux.style.transform = 'rotate(90deg)';
         });
-        bateaux === null || bateaux === void 0 ? void 0 : bateaux.setAttribute("id", "verticaux");
+        SELECTEUR_BATEAUX === null || SELECTEUR_BATEAUX === void 0 ? void 0 : SELECTEUR_BATEAUX.setAttribute("id", "verticaux");
     }
     else {
         listeBateaux.forEach(function (listeBateaux) {
             listeBateaux.style.transform = "";
         });
-        bateaux === null || bateaux === void 0 ? void 0 : bateaux.setAttribute("id", "horizontaux");
+        SELECTEUR_BATEAUX === null || SELECTEUR_BATEAUX === void 0 ? void 0 : SELECTEUR_BATEAUX.setAttribute("id", "horizontaux");
     }
 }
 boutonTourner === null || boutonTourner === void 0 ? void 0 : boutonTourner.addEventListener('click', tournerBateaux);
