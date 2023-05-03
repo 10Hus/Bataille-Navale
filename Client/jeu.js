@@ -22,7 +22,7 @@ socketJeu.on('identifiantJoueur', function (id) {
             nomJoueur = "Joueur 2";
             roleJoueur = "adversaire";
         }
-        console.log("Debug : Le joueur ".concat(identifiantJoueurConnecte, " s'est connect\u00E9 !"));
+        console.log("Debug : Le joueur PAULLLLLLLLLL ".concat(identifiantJoueurConnecte, " s'est connect\u00E9 !"));
     }
     if (id = 42) {
         return;

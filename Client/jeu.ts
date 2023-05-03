@@ -29,7 +29,7 @@ socketJeu.on('identifiantJoueur', (id: number) => {
 			nomJoueur = "Joueur 2"
 			roleJoueur = "adversaire"
 		}
-		console.log(`Debug : Le joueur ${identifiantJoueurConnecte} s'est connecté !`);
+		console.log(`Debug : Le joueur PAULLLLLLLLLL ${identifiantJoueurConnecte} s'est connecté !`);
 	}
 
 	if (id = 42) {
