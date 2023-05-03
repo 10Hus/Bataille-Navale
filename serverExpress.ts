@@ -59,7 +59,9 @@ server.listen(PORT, () => {
 // Événement lors d'une connexion d'un client à la Socket.io
 io.on("connection", (...params:any) => {
 
+    //////////////////////
     // PARTIE CONNEXION //
+    //////////////////////
 
     // Création d'un "identifiantJoueurConnecte" le temps qu'une connexion arrive
     let identifiantJoueurConnecte = PERSONNE
@@ -92,11 +94,14 @@ io.on("connection", (...params:any) => {
         identifiantJoueurDisponible ++
     }
 
+    // Il n'y a plus d'indice possible pour le prochain joueur
     if (identifiantJoueurDisponible >= NOMBRE_MAXIMUM_JOUEUR) {
         console.log(`Debug : Erreur, aucune connexion disponnilbe, attendait la fin de la partie en cours ...`);
     }
 
+    ////////////////////
     // PARTIE MESSAGE //
+    ////////////////////
 
     // Envoi d'un message au client pour lui donner son "identifiantJoueurConnecte"
     io.emit('identifiantJoueur', identifiantJoueurConnecte)
