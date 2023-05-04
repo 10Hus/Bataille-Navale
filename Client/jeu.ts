@@ -150,8 +150,7 @@ function tirer(_case: any) {
 	const tourPartie = document.querySelector("#joueur")
 
 	// parce que je suis vraiment trop con à avoir commencer mes id a 1 personne fait ça wtf
-	const correspondance = ['NULL',
-		'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10',
+	const correspondance = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10',
 		'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10',
 		'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10',
 		'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10',
@@ -282,7 +281,7 @@ function creerLignes(grilleJeu: HTMLTableElement, mode: string) {
 			if (mode === 'adversaire') {
 				cellule.classList.add('cliquable')
 			}
-			cellule.id = `${10 * i + (j + 1)}`
+			cellule.id = `${10 * i + j}`
 
 			ligne.append(cellule)
 		}
@@ -309,22 +308,22 @@ let bateauSelectionne: any
 function placerBateau(bateau: BATEAU, emplacement: number) {
 	const casesJouables = document.querySelectorAll('#joueur td.eau')
 	const orientation = SELECTEUR_BATEAUX?.getAttribute("id")
-	console.log(emplacement)
+	//console.log(emplacement)
 	let emplacementValide: any
-	let limite = Math.ceil(emplacement / 10) * 10
+	//let limite = Math.ceil(emplacement / 10) * 10
 	//console.log(limite)
 
 	if (orientation === 'horizontaux') {
-		if (emplacement <= limite - bateau.Taille) {
+		if (Math.floor((Number(emplacement) + bateau.Taille - 1)/10) == Math.floor(emplacement/10)) {
 			emplacementValide = emplacement
 		} else {
-			emplacementValide = limite - (bateau.Taille - 1)
+			emplacementValide = Math.ceil(emplacement/10)*10-bateau.Taille
 		}
 	} else {
-		if (emplacement <= 100 - 10 * bateau.Taille) {
+		if ((Number(emplacement)/10 + bateau.Taille - 1) < 10) {
 			emplacementValide = emplacement
 		} else {
-			emplacementValide = emplacement - 10 * bateau.Taille + 10
+			emplacementValide = Number(emplacement) - 10*(bateau.Taille - 1)
 		}
 	}
 
@@ -335,14 +334,13 @@ function placerBateau(bateau: BATEAU, emplacement: number) {
 
 	for (let i = 0; i < bateau.Taille; i++)
 		if (orientation === 'horizontaux') {
-			console.log(casesJouables[Number(emplacementValide) + i - 1])
-			casesBateau.push(casesJouables[Number(emplacementValide) + i - 1])
+			casesBateau.push(casesJouables[Number(emplacementValide) + i ])
 		} else {
-			casesBateau.push(casesJouables[Number(emplacementValide) + 10 * i - 1])
+			casesBateau.push(casesJouables[Number(emplacementValide) + 10*i])
 		}
 
-	console.log(casesBateau)
-
+	//console.log(casesBateau)
+	/*
 	let valide
 
 	if (orientation === 'horizontaux') {
@@ -361,12 +359,12 @@ function placerBateau(bateau: BATEAU, emplacement: number) {
 	}
 
 	console.log(valide)
-
+	*/
 	const libre = casesBateau.every(_case => !_case.classList.contains("occupee"))
 
-	console.log(libre)
+	//console.log(libre)
 
-	if (valide && libre) {
+	if (libre) {
 		casesBateau.forEach(_case => {
 			_case.classList.add(`${emplacementValide}-${bateau.Taille}`)
 			_case.classList.add("bateau")
