@@ -1,76 +1,29 @@
-////////////////////
-//   CONSTANTES   //
-////////////////////
-// Identifiant de connexion arbitraire (exporter pour jeu.ts)
-var PERSONNE = 42;
-// Sélectionne le premier élément de la page HTML qui a un identifiant "info-serveur"
-var INFO_SERVEUR = document.querySelector("#info-serveur");
-////////////////////////////////////////////////////////////////////////////
-// Sélectionne le premier élément de la page HTML qui a une classe "bateaux"
-var SELECTEUR_BATEAUX = document.querySelector('.bateaux');
-// Sélectionne le premier élément de la page HTML qui a un identifiant "jouer"
-var BOUTON_COMMENCER = document.querySelector('#jouer');
-///////////////////
-//   VARIABLES   //
-///////////////////
-// Création d'un "identifiantJoueurConnecte" le temps qu'une connexion arrive
-var identifiantJoueurConnecte = PERSONNE;
-// Nom du joueur
-var nomJoueur = "";
-// Rôle du joueur
-var roleJoueur = "";
-////////////////////////////////////////////////////////////////////////////
-// Indiquer s'il y a gagnant
-var gagnant = false;
-// ??? Nombre de bateau du joueur courant
+var bateaux = document.querySelector('.bateaux');
+var boutonCommencer = document.querySelector('#jouer');
+var gagner = false;
 var bateauJoueur;
-// ??? Nombre de bateau de l'adversaire
 var bateauAdversaire;
-// État du joueur
+var idJoueur = 0;
+var nomJoueur = "Joueur 1";
+var roleJoueur = "joueur";
 var joueurPret = false;
-// État de l'adversaire
 var adversairePret = false;
-////////////////
-//   Client   //
-////////////////
-// Connexion du client au serveur avec Socket.io
-var socketJeu = io();
-///////////////////
-//   Événement   //
-///////////////////
-// Écoute de l'événement 'identifiantJoueur' émis par le serveur
-socketJeu.on('idJoueur', function (idJoueur) {
-    console.log("Debug : \u00C9v\u00E8nement \"identifiantJoueur\" re\u00E7u !");
-    console.log("Debug : idJoueur vaut : " + idJoueur);
-    // Si trop de joueurs sont connectés
-    if (idJoueur === PERSONNE) {
-        // Mise à jour de INFO_SERVEUR dans la page HTML
-        INFO_SERVEUR.innerHTML = "Trop de joueurs sont connectés !";
-        // S'il y a moins de 3 joueurs connectés
+var socket = io();
+socket.on('idJoueur', function (id) {
+    console.log("Le joueur ", id);
+    if (id === 666) {
+        var infoPartie = document.querySelector("#dernier-coup");
+        infoPartie.innerHTML = "Trop de joueurs connectés.";
     }
     else {
-        // Récupération de l'identifiant du joueur qui vient de se connecter
-        identifiantJoueurConnecte = Number(idJoueur);
-        // Si c'est le Joueur 1
-        if (identifiantJoueurConnecte === 0) {
-            // Nom du joueur
-            nomJoueur = "Joueur 1";
-            // Rôle du joueur
-            roleJoueur = "joueur";
-            // Si c'est le Joueur 2
-        }
-        else if (identifiantJoueurConnecte === 1) {
-            // Nom du joueur
+        idJoueur = Number(id);
+        if (idJoueur === 1) {
             nomJoueur = "Joueur 2";
-            // Rôle du joueur
             roleJoueur = "adversaire";
-            // Si c'est le Joueur X
         }
-        else {
-            console.log("Erreur : identifiant du joueur connect\u00E9 inconnu !");
-            // On s'arrête
-            return;
-        }
+    }
+    if (id = 666) {
+        return;
     }
 });
 function verifierGagner() {
@@ -78,7 +31,7 @@ function verifierGagner() {
 }
 function tirer(_case) {
     var etat;
-    if (!gagnant) {
+    if (!gagner) {
         if (_case.target.classList.contains('occupee')) {
             etat = "touché";
             bateauAdversaire--;
@@ -88,7 +41,7 @@ function tirer(_case) {
             _case.target.classList.add("touche-adversaire");
             var caseClasses = _case.target.classList;
             console.log(caseClasses);
-            gagnant = verifierGagner();
+            gagner = verifierGagner();
         }
         else {
             etat = "raté";
@@ -101,8 +54,7 @@ function tirer(_case) {
     var infoPartie = document.querySelector("#dernier-coup");
     var tourPartie = document.querySelector("#joueur");
     // parce que je suis vraiment trop con à avoir commencer mes id a 1 personne fait ça wtf
-    var correspondance = ['NULL',
-        'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10',
+    var correspondance = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10',
         'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10',
         'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10',
         'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10',
@@ -113,7 +65,7 @@ function tirer(_case) {
         'I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7', 'I8', 'I9', 'I10',
         'J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7', 'J8', 'J9', 'J10'];
     infoPartie.innerHTML = "".concat(tourPartie === null || tourPartie === void 0 ? void 0 : tourPartie.innerHTML, " a ").concat(etat, " ").concat(correspondance[Number(_case.target.id)]);
-    if (gagnant) {
+    if (gagner) {
         tourPartie.innerHTML = "VICTOIRE de ".concat(tourPartie.innerHTML);
     }
     else {
@@ -121,10 +73,10 @@ function tirer(_case) {
     }
 }
 function commencerPartie() {
-    console.log(identifiantJoueurConnecte);
+    console.log(idJoueur);
     var infoPartie = document.querySelector("#dernier-coup");
     infoPartie.innerHTML = "";
-    if (SELECTEUR_BATEAUX.children.length > 0) {
+    if (bateaux.children.length > 0) {
         infoPartie.innerHTML = "Placer tout vos bateaux avant de lancer la partie";
         bateauJoueur = 18;
         bateauAdversaire = 18;
@@ -132,7 +84,7 @@ function commencerPartie() {
     else {
         var tourPartie = document.querySelector("#joueur");
         tourPartie.innerHTML = Math.random() < 0.5 ? "Joueur 1" : "Joueur 2";
-        BOUTON_COMMENCER === null || BOUTON_COMMENCER === void 0 ? void 0 : BOUTON_COMMENCER.removeEventListener('click', commencerPartie);
+        boutonCommencer === null || boutonCommencer === void 0 ? void 0 : boutonCommencer.removeEventListener('click', commencerPartie);
         var casesCliquables = document.querySelectorAll("#adversaire td");
         casesCliquables.forEach(function (td) {
             if (td.classList.contains("cliquable")) {
@@ -141,7 +93,7 @@ function commencerPartie() {
         });
     }
 }
-BOUTON_COMMENCER === null || BOUTON_COMMENCER === void 0 ? void 0 : BOUTON_COMMENCER.addEventListener('click', commencerPartie);
+boutonCommencer === null || boutonCommencer === void 0 ? void 0 : boutonCommencer.addEventListener('click', commencerPartie);
 var divGrilleJeu = document.querySelector('#grille');
 function creerGrille(mode, nom) {
     var grilleJeu = document.createElement('table');
@@ -200,7 +152,7 @@ function creerLignes(grilleJeu, mode) {
             if (mode === 'adversaire') {
                 cellule.classList.add('cliquable');
             }
-            cellule.id = "".concat(10 * i + (j + 1));
+            cellule.id = "".concat(10 * i + (j));
             ligne.append(cellule);
         }
         grilleJeu.append(ligne);
@@ -217,58 +169,63 @@ var BATEAUX = [porteAvions, croiseur, contreTorpilleur1, contreTorpilleur2, torp
 var bateauSelectionne;
 function placerBateau(bateau, emplacement) {
     var casesJouables = document.querySelectorAll('#joueur td.eau');
-    var orientation = SELECTEUR_BATEAUX === null || SELECTEUR_BATEAUX === void 0 ? void 0 : SELECTEUR_BATEAUX.getAttribute("id");
+    var orientation = bateaux === null || bateaux === void 0 ? void 0 : bateaux.getAttribute("id");
     console.log(emplacement);
     var emplacementValide;
-    var limite = Math.ceil(emplacement / 10) * 10;
-    //console.log(limite)
+    var limite = Math.ceil(emplacement / 10) * 10 - 1;
+    console.log("derniere case bateau :", Number(emplacement) + bateau.Taille - 1);
+    console.log("limite :", Math.floor(Number(emplacement / 10)));
+    console.log(bateau.Taille, limite);
+    console.log(Math.floor((Number(emplacement) + bateau.Taille - 1) / 10), Math.floor(emplacement / 10));
     if (orientation === 'horizontaux') {
-        if (emplacement <= limite - bateau.Taille) {
+        if (Math.floor((Number(emplacement) + bateau.Taille - 1) / 10) == Math.floor(emplacement / 10)) {
             emplacementValide = emplacement;
         }
         else {
-            emplacementValide = limite - (bateau.Taille - 1);
+            emplacementValide = Math.ceil(emplacement / 10) * 10 - bateau.Taille;
         }
     }
     else {
-        if (emplacement <= 100 - 10 * bateau.Taille) {
+        if ((Number(emplacement) / 10 + bateau.Taille - 1) < 10) {
             emplacementValide = emplacement;
         }
         else {
-            emplacementValide = emplacement - 10 * bateau.Taille + 10;
+            emplacementValide = Number(emplacement) - 10 * (bateau.Taille - 1);
         }
     }
     console.log(emplacementValide);
     var casesBateau = [];
     for (var i = 0; i < bateau.Taille; i++)
         if (orientation === 'horizontaux') {
-            console.log(casesJouables[Number(emplacementValide) + i - 1]);
-            casesBateau.push(casesJouables[Number(emplacementValide) + i - 1]);
+            //console.log(casesJouables[Number(emplacementValide) + i - 1])
+            casesBateau.push(casesJouables[Number(emplacementValide) + i]);
         }
         else {
-            casesBateau.push(casesJouables[Number(emplacementValide) + 10 * i - 1]);
+            casesBateau.push(casesJouables[Number(emplacementValide) + 10 * i]);
         }
-    console.log(casesBateau);
-    var valide;
-    if (orientation === 'horizontaux') {
-        casesBateau.every(function (_case, indice) {
-            if (emplacement > 90) {
-                valide = Number(casesBateau[0].id) % 10 - 1 <= 10 - (casesBateau.length - indice);
-            }
-            else {
-                valide = Number(casesBateau[0].id) % 10 <= 10 - (casesBateau.length - indice);
-            }
-        });
-    }
-    else {
-        casesBateau.every(function (_case, indice) {
-            valide = Number(casesBateau[0].id) < 90 + (10 * indice + 1);
-        });
-    }
-    console.log(valide);
+    //console.log(casesBateau)
+    //let valide = true
+    /*
+if(orientation === 'horizontaux') {
+    casesBateau.every((_case, indice) => {
+
+        if (emplacement > 90) {
+            valide = Number(casesBateau[0].id) % 10 - 1 <= 10 - (casesBateau.length - indice)
+        } else {
+            valide = Number(casesBateau[0].id) % 10 <= 10 - (casesBateau.length - indice)
+        }
+
+    })
+} else {
+    casesBateau.every((_case, indice) => {
+        valide = Number(casesBateau[0].id) < 90 + (10*indice + 1)
+    })
+}
+*/
+    //console.log(valide)
     var libre = casesBateau.every(function (_case) { return !_case.classList.contains("occupee"); });
     console.log(libre);
-    if (valide && libre) {
+    if (libre) {
         casesBateau.forEach(function (_case) {
             _case.classList.add("".concat(emplacementValide, "-").concat(bateau.Taille));
             _case.classList.add("bateau");
@@ -279,7 +236,7 @@ function placerBateau(bateau, emplacement) {
         bateauJoueur++;
     }
 }
-var placementBateaux = Array.prototype.slice.call(SELECTEUR_BATEAUX === null || SELECTEUR_BATEAUX === void 0 ? void 0 : SELECTEUR_BATEAUX.children);
+var placementBateaux = Array.prototype.slice.call(bateaux === null || bateaux === void 0 ? void 0 : bateaux.children);
 placementBateaux.forEach(function (placementBateau) {
     placementBateau.addEventListener("dragstart", selectionnerBateau);
 });
@@ -303,19 +260,19 @@ var boutonTourner = document.querySelector('#tourner');
 function tournerBateaux() {
     var textBoutonTourner = document.querySelector('#orientation');
     textBoutonTourner.innerHTML = (textBoutonTourner === null || textBoutonTourner === void 0 ? void 0 : textBoutonTourner.innerHTML) === "verticaux" ? "horizontaux" : "verticaux";
-    var listeBateaux = Array.prototype.slice.call(SELECTEUR_BATEAUX === null || SELECTEUR_BATEAUX === void 0 ? void 0 : SELECTEUR_BATEAUX.children);
+    var listeBateaux = Array.prototype.slice.call(bateaux === null || bateaux === void 0 ? void 0 : bateaux.children);
     console.log();
-    if ((SELECTEUR_BATEAUX === null || SELECTEUR_BATEAUX === void 0 ? void 0 : SELECTEUR_BATEAUX.getAttribute("id")) === "horizontaux") {
+    if ((bateaux === null || bateaux === void 0 ? void 0 : bateaux.getAttribute("id")) === "horizontaux") {
         listeBateaux.forEach(function (listeBateaux) {
             listeBateaux.style.transform = 'rotate(90deg)';
         });
-        SELECTEUR_BATEAUX === null || SELECTEUR_BATEAUX === void 0 ? void 0 : SELECTEUR_BATEAUX.setAttribute("id", "verticaux");
+        bateaux === null || bateaux === void 0 ? void 0 : bateaux.setAttribute("id", "verticaux");
     }
     else {
         listeBateaux.forEach(function (listeBateaux) {
             listeBateaux.style.transform = "";
         });
-        SELECTEUR_BATEAUX === null || SELECTEUR_BATEAUX === void 0 ? void 0 : SELECTEUR_BATEAUX.setAttribute("id", "horizontaux");
+        bateaux === null || bateaux === void 0 ? void 0 : bateaux.setAttribute("id", "horizontaux");
     }
 }
 boutonTourner === null || boutonTourner === void 0 ? void 0 : boutonTourner.addEventListener('click', tournerBateaux);
