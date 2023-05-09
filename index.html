@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title class="titre">Pourquoi Paul ?</title>
+		<link rel="stylesheet" href="style.css">
+		
+		
+	</head>
+	<body>
+
+		<div id="id-partie">	
+			<p class="tireJoueur idJoueur"></p>
+			<button class="bouton-jeu" id="jouer"><span id="lancement">Commencer</span></button>
+			<p> Au tour de : <span id="joueur">Commencer la partie pour jouer</span>
+			<p> Dernier coup joué : <span id="dernier-coup"></span></p>
+		</div>
+		<pre>
+			<div id="grille">    
+		</pre>
+		
+
+		</div>
+
+
+		Bateaux :<button class="bouton-jeu" id="tourner"><span id="orientation">horizontaux</span></button>
+
+		<div class="bateaux" id="horizontaux">
+				<div class="bateau-5" id="0" draggable="true"></div>
+				<div class="bateau-4" id="1" draggable="true"></div>
+				<div class="bateau-3" id="2" draggable="true"></div>
+				<div class="bateau-3" id="3" draggable="true"></div>
+				<div class="bateau-2" id="4" draggable="true"></div>
+		</div>
+
+		<div class="div-connection">
+			<div>
+			<pre>
+				<div class="logJoueur lj1 ncoJoueur"></div><b>Joueur1</b>  </pre>	
+			</div>
+			<div>	
+			<pre>
+				<div class="logJoueur lj2 ncoJoueur"></div><b>Joueur2</b>  </pre>	
+			</div>
+		</div>
+		
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="jeu.js" charset="utf-8"></script>
+	</body>
+</html>

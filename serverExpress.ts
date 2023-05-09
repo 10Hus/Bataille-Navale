@@ -27,6 +27,10 @@ const PORT = 8080
 const TABLEAU_JOUEUR_CONNEXION: any[] = [null, null]
 
 
+// grilles des joueurs
+let grilleJ1 : boolean[]
+let grilleJ2 : boolean[]
+
 
 /////////////////////////
 //   SERVEUR EXPRESS   //
@@ -57,7 +61,7 @@ server.listen(PORT, () => {
 ///////////////////
 
 // Événement lors d'une connexion d'un client à la Socket.io
-io.on("connection", (...params:any) => {
+io.on("connection", (socket) => {
 
     //////////////////////
     // PARTIE CONNEXION //
@@ -107,8 +111,46 @@ io.on("connection", (...params:any) => {
     ////////////////////
 
     // Envoi d'un message au client pour lui donner son "identifiantJoueurConnecte"
-    io.emit('idJoueur', identifiantJoueurConnecte)
+    socket.emit('idJoueur', identifiantJoueurConnecte)
 
-    console.log(`Debug : Le joueur ${identifiantJoueurConnecte} a reçu son identifiant !`);
+    if (placeTrouvee){
+        console.log(`Debug : Le joueur ${identifiantJoueurConnecte} a reçu son identifiant !`);
+    }
+
+    socket.on("connectionJoueur", (idJoueur) => {
+        socket.broadcast.emit("nouveauJoueur", (idJoueur+1))
+    })
+
+    socket.on("joueurPret", (idJoueur) => {
+        socket.broadcast.emit("UIjoueurPret", idJoueur)
+    })
+
+    socket.on("grilleJoueur", (grille, idJoueur)=> {
+        if (idJoueur === 1) {
+            grilleJ1 = grille
+        } else {
+            grilleJ2 = grille
+        }
+    })
+
+    socket.on("joueursPrets", (premierTour) => {
+        socket.emit("lancementPartie", premierTour)
+        socket.broadcast.emit("lancementPartie", premierTour)
+    })
+
+    socket.on("tireJoueur", function(tour, cible, fn) {
+        let verifTouche
+        if (tour === 0) {
+            verifTouche = grilleJ2[cible]
+        } else {
+            verifTouche = grilleJ1[cible]
+        }
+        fn(verifTouche)
+    })
+
+    socket.on("tourSuivant", (infoTire, gagnant) => {
+        socket.emit("actualiserTour", infoTire, gagnant)
+        socket.broadcast.emit("actualiserTour", infoTire, gagnant)
+    })
 
 });
