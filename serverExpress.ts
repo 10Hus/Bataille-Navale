@@ -7,8 +7,6 @@ import * as http from "http";
 import * as socketio from "socket.io";
 import path from "path"
 
-
-
 ////////////////////
 //   CONSTANTES   //
 ////////////////////
@@ -26,11 +24,9 @@ const PORT = 8080
 // Exemple : [null, null] -> [0, true] -> [0, true][1, true] -> ...
 const TABLEAU_JOUEUR_CONNEXION: any[] = [null, null]
 
-
 // grilles des joueurs
 let grilleJ1 : boolean[]
 let grilleJ2 : boolean[]
-
 
 /////////////////////////
 //   SERVEUR EXPRESS   //
@@ -53,8 +49,6 @@ server.listen(PORT, () => {
     console.log(`Le serveur est bien lancé !`);
     console.log(`Le serveur est accessible via l'url : localhost:${PORT}\n`);
 });
-
-
 
 ///////////////////
 //   Événement   //
@@ -103,7 +97,7 @@ io.on("connection", (socket) => {
     // Il n'y a plus d'indice possible pour le prochain joueur
     // "identifiantJoueurDisponible - 1" car il vaut un de plus que le dernier identifiantJoueurConnecte
     if (identifiantJoueurDisponible - 1 >= NOMBRE_MAXIMUM_JOUEUR) {
-        console.log(`Erreur, aucune connexion disponnilbe, attendait la fin de la partie en cours ...`);
+        console.log(`Erreur, aucune connexion disponnilbe, attendez la fin de la partie en cours ...`);
     }
 
     ////////////////////
@@ -117,14 +111,17 @@ io.on("connection", (socket) => {
         console.log(`Debug : Le joueur ${identifiantJoueurConnecte} a reçu son identifiant !`);
     }
 
+    // Lorsqu'un joueur se connecte
     socket.on("connectionJoueur", (idJoueur) => {
         socket.broadcast.emit("nouveauJoueur", (idJoueur+1))
     })
 
+    // Lorsqu'un joueur est prêt à jouer
     socket.on("joueurPret", (idJoueur) => {
         socket.broadcast.emit("UIjoueurPret", idJoueur)
     })
 
+    // Lorsqu'un joueur envoie sa grille de jeu
     socket.on("grilleJoueur", (grille, idJoueur)=> {
         if (idJoueur === 1) {
             grilleJ1 = grille
@@ -133,11 +130,13 @@ io.on("connection", (socket) => {
         }
     })
 
+    // Lorsque les deux joueurs sont prêts, on lance la partie
     socket.on("joueursPrets", (premierTour) => {
         socket.emit("lancementPartie", premierTour)
         socket.broadcast.emit("lancementPartie", premierTour)
     })
 
+    // Lorsqu'un joueur tire, on vérifie si il a touché ou non
     socket.on("tireJoueur", function(tour, cible, fn) {
         let verifTouche
         if (tour === 0) {
@@ -148,6 +147,7 @@ io.on("connection", (socket) => {
         fn(verifTouche)
     })
 
+    // Changement de tour
     socket.on("tourSuivant", (infoTire, gagnant) => {
         socket.emit("actualiserTour", infoTire, gagnant)
         socket.broadcast.emit("actualiserTour", infoTire, gagnant)

@@ -16,8 +16,6 @@ const SELECTEUR_BATEAUX = document.querySelector('.bateaux')
 // Sélectionne le premier élément de la page HTML qui a un identifiant "jouer"
 const BOUTON_COMMENCER = document.querySelector('#jouer')
 
-
-
 ///////////////////
 //   VARIABLES   //
 ///////////////////
@@ -142,6 +140,7 @@ socketJeu.on('idJoueur', (idJoueur: number) => {
 	}
 })
 
+// Lorsqu'un nouveau joueur se connecte, on met à jour son statut dans la liste des joueurs
 socketJeu.on("nouveauJoueur", (idAdversaire : number) =>{
 	nbJoueur++
 	const logJoueur = document.querySelector(`.lj${idAdversaire}`)
@@ -149,6 +148,7 @@ socketJeu.on("nouveauJoueur", (idAdversaire : number) =>{
 	logJoueur?.classList.add("coJoueur")
 })
 
+// Lorsqu'un joueur est prêt, on met à jour son statut dans la liste des joueurs
 socketJeu.on("UIjoueurPret", (idJoueurPret : number) => {
 	adversairePret = true
 	const logJoueur = document.querySelector(`.lj${idJoueurPret}`)
@@ -156,27 +156,39 @@ socketJeu.on("UIjoueurPret", (idJoueurPret : number) => {
 	logJoueur?.classList.add("rdyJoueur")
 })
 
+// Lorsque la partie est lancée, on met à jour le tour, on marque le début de la partie et on retire la possibilité de lancer la partie
 socketJeu.on("lancementPartie", (premierTour : number) => {
 	tour = premierTour
 	partieLancee = true
 	bateauAdversaire = 17
 
+	// Mis à jour du joueur actuel
 	const tourPartie = document.querySelector("#joueur")
 	tourPartie!.innerHTML = tour === 0 ? "Joueur 1" : "Joueur 2"
+	// Retire la possibilité de lancer la partie en cliquant sur le bouton
 	BOUTON_COMMENCER?.removeEventListener('click', commencerPartie)
-
 })
 
+// Mise à jour du tour
 socketJeu.on("actualiserTour", (infoTour : string, gagner : boolean) => {
+
+	// Changement du tour 
 	tour = (tour + 1)%2
+
+	// On récupère les éléments HTML nécessaires pour la mise à jour de la page
 	const infoPartie = document.querySelector("#dernier-coup")
 	const tourPartie = document.querySelector("#joueur")
 
+	// Mise à jour de l'affichage 
 	infoPartie!.innerHTML = infoTour
 
+	// Si il y a un gagant
 	if (gagner) {
+
+		// On affiche un message de victoire
 		tourPartie!.innerHTML = `VICTOIRE de ${tourPartie!.innerHTML}`
 
+		// On désactive les cases cliquables
 		const casesCliquables = document.querySelectorAll(".eau")
 		casesCliquables.forEach((td) => {
 			if (td.classList.contains("cliquable")) {
@@ -184,38 +196,48 @@ socketJeu.on("actualiserTour", (infoTour : string, gagner : boolean) => {
 			}
 		})
 
-	} else {
+	}
+	// Si il n'y a pas de gagnant 
+	else {
+		// On met à jour le tour affiché 
 		tourPartie!.innerHTML = tourPartie!.innerHTML === "Joueur 1" ? "Joueur 2" : "Joueur 1"
 	}
 
 })
 
-
-
-
-
+// Fonction pour vérifier si il y a un gagant ou non
 function verifierGagner() {
-	console.log(bateauAdversaire, bateauJoueur)
 	return !bateauAdversaire
 }
 
+// Fonction appelée à chaque tir
 function tirer(_case: any) {
 	let etat
-	if (!partieLancee) return
+	// Si la partie n'est pas encore lancée, la fonction ne fait rien
+	if (!partieLancee){
+		return
+	}
 
+	// On récupère l'identifiant du joueur qui vient tirer
 	const logJoueurId = Number(document.querySelector(".tireJoueur")?.classList[1])
-	//gagnant = verifierGagner()
+
+	// Si un joueur a gagné, on ne fait plus rien
 	if (!gagnant && logJoueurId === tour) {
 		
 		touche = false
+
+		// On récupère l'identifiant de la case ciblée
 		const cible = Number(_case.target.id)
 
+		// On envoie un événement au serveur pour lui indiquer que le joueur a tiré sur la case
 		socketJeu.emit('tireJoueur', tour, cible, function (data : any) {
 			touche =  data
 
+			// On désactive la case sur laquelle le joueur a cliqué
 			_case.target.classList.remove("cliquable")
 			_case.target.removeEventListener('click', tirer)
 			
+			// Si le joueur a touché un bateau
 			if (touche) {
 				etat = "touché"
 				bateauAdversaire--
@@ -224,14 +246,17 @@ function tirer(_case: any) {
 				_case.target.classList.add("touche-adversaire")
 				gagnant = verifierGagner()
 
-			} else {
+			} 
+			// Si le joueur n'a pas touché un bateau
+			else {
 				etat = "raté"
 
+				// Mise a jour des classes de la case
 				_case.target.classList.add("rate-adversaire")
 			}
 
+			// Mis à jour de l'affichage 
 			const tourPartie = document.querySelector("#joueur")
-
 			const correspondance = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'I1', 'J1',
                                     'A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'I2', 'J2',
                                     'A3', 'B3', 'C3', 'D3', 'E3', 'F3', 'G3', 'H3', 'I3', 'J3',
@@ -246,93 +271,65 @@ function tirer(_case: any) {
 			socketJeu.emit("tourSuivant", `${tourPartie?.innerHTML} a ${etat} ${correspondance[Number(_case.target.id)]}`, gagnant )
 
 		})
-		
-	} else {
+	} 
+	else {
 		return
 	}
-
-
 }
 
+// Fonction appelée au début de la partie
 function commencerPartie() {
-	//console.log(adversairePret)
+
 	const infoPartie = document.querySelector("#dernier-coup")
 	infoPartie!.innerHTML = ""
+
+	// On vérifie qu'il y ait 2 joueurs et que celui qui clique à poser tous ses baetaux 
 	if (nbJoueur !== 2 || SELECTEUR_BATEAUX!.children.length > 0) {
 		infoPartie!.innerHTML = "Vous devez placer tous vos bateaux et attendre que votre adversaire se connecte avant de lancer la partie"
+	} 
+	else {
 
-	} else {
+		// On récuper l'ID du joueur actuel, et on signal qu'il est prêt
 		const logJoueurId = Number(document.querySelector(".tireJoueur")?.classList[1]) + 1
-		//console.log(logJoueurId)
-
 		socketJeu.emit("joueurPret", logJoueurId)
+
+		// On enlève le fait de pouvoir cliquer sur le bouton
+		BOUTON_COMMENCER?.removeEventListener('click', commencerPartie)
+
+		// On change son état en prêt
+		const logJoueur = document.querySelector(`.lj${logJoueurId}`)
+		logJoueur?.classList.remove("coJoueur")
+		logJoueur?.classList.add("rdyJoueur")
+
+		// On met tous les cas en cliquable 
+		const casesCliquables = document.querySelectorAll("#adversaire td")
+		casesCliquables.forEach((td) => {
+			if (td.classList.contains("cliquable")) {
+				td.addEventListener('click', tirer)
+			}
+		})
+
+		// On envoie la grille du joueur au serveur
+		let grille : boolean[] = []
+		const casesJoueur = document.querySelectorAll("#joueur td.eau")
+		casesJoueur.forEach((td) => {
+			if(td.classList.contains("bateau")) {
+				grille.push(true)
+			} 
+			else {
+				grille.push(false)
+			}
+		})
+		socketJeu.emit("grilleJoueur", grille, logJoueurId)
+
+		// On vérifie si l'adversaire est prêt également, on le signale au serveur
 		if (!adversairePret){
-			BOUTON_COMMENCER?.removeEventListener('click', commencerPartie)
-			const logJoueur = document.querySelector(`.lj${logJoueurId}`)
-			logJoueur?.classList.remove("coJoueur")
-			logJoueur?.classList.add("rdyJoueur")
-			
-			const casesCliquables = document.querySelectorAll("#adversaire td")
-			casesCliquables.forEach((td) => {
-				if (td.classList.contains("cliquable")) {
-					td.addEventListener('click', tirer)
-				}
-			})
-			
-			let grille : boolean[] = []
-
-			const casesJoueur = document.querySelectorAll("#joueur td.eau")
-			casesJoueur.forEach((td) => {
-				if(td.classList.contains("bateau")) {
-					grille.push(true)
-				} else {
-					grille.push(false)
-				}
-			})
-			//console.log(grille)
-			socketJeu.emit("grilleJoueur", grille, logJoueurId)
-			
-		} else {
-
-			const logJoueurId = Number(document.querySelector(".tireJoueur")?.classList[1]) + 1
-			
-			const logJoueur = document.querySelector(`.lj${logJoueurId}`)
-			logJoueur?.classList.remove("coJoueur")
-			logJoueur?.classList.add("rdyJoueur")
-			/*
-			const tourPartie = document.querySelector("#joueur")
-			tourPartie!.innerHTML = Math.random() < 0.5 ? "Joueur 1" : "Joueur 2"
-			BOUTON_COMMENCER?.removeEventListener('click', commencerPartie)
-			*/
 			const premierTour = Math.random() < 0.5 ? 0 : 1
-
-
-			const casesCliquables = document.querySelectorAll("#adversaire td")
-			casesCliquables.forEach((td) => {td
-				if (td.classList.contains("cliquable")) {
-					td.addEventListener('click', tirer)
-				}
-
-			})
-
-			let grille : boolean[] = []
-
-			const casesJoueur = document.querySelectorAll("#joueur td.eau")
-			casesJoueur.forEach((td) => {
-				if(td.classList.contains("bateau")) {
-					grille.push(true)
-				} else {
-					grille.push(false)
-				}
-			})
-
-			socketJeu.emit("grilleJoueur", grille, logJoueurId)
-
 			socketJeu.emit("joueursPrets", premierTour)	
 		}
 	}
 }
-
+// On lie le bouton et la fonction 
 BOUTON_COMMENCER?.addEventListener('click', commencerPartie)
 
 interface BATEAU {
@@ -341,25 +338,33 @@ interface BATEAU {
 
 const divGrilleJeu = document.querySelector('#grille')
 
+// Création de la grille
 function creerGrille(mode: string, nom: string) {
+	// Cration de l'éléement
 	const grilleJeu = document.createElement('table')
+
+	// Style de la grille
 	grilleJeu.style.padding = "0"
 	grilleJeu.style.borderSpacing = "5"
 	grilleJeu.style.backgroundColor = "#000000"
 	grilleJeu.classList.add("grille-jeu")
 	grilleJeu.id = mode
 
+	// Ajoue de l'entete et des lignes
 	creerEntete(grilleJeu)
 	creerLignes(grilleJeu, mode)
 
+	// Si la grille est celle de l'adversaire on ajoute des événements  
 	if (mode === "adversaire") {
 		grilleJeu.querySelectorAll("td").forEach((td) => {
 
 			if (td.classList.contains("cliquable")) {
+				// Ajouter la classe "jouable" quand le curseur entre dans la case
 				td.onpointerenter = () => {
 					td.classList.add("jouable")
 				}
 
+				// Enlève la classe "jouable" quand le curseur quitte dans la case
 				td.onpointerleave = () => {
 					td.classList.remove("jouable")
 				}
@@ -367,23 +372,24 @@ function creerGrille(mode: string, nom: string) {
 		})
 	}
 
-
-
+	// Ajout de la grille au divGrilleJeu si il existe 
 	divGrilleJeu?.append(grilleJeu)
-
 }
 
+// Fonction pour faire l'entete d'une grille
 function creerEntete(grilleJeu: HTMLTableElement) {
 
+	// Création d'une ligne pour l'entete
 	const entete = document.createElement('tr')
 	entete.style.backgroundColor = "#ffffff"
 
+	// Création d'une case vide en haut à gauche
 	const celluleVide = document.createElement('th')
 	celluleVide.style.width = "25"
 	celluleVide.classList.add("case-grille")
-
 	entete.append(celluleVide)
 
+	// Ajout des lettres A à J dans l'entete
 	for (let i = 0; i < 10; i++) {
 		let enteteCellule = document.createElement('th')
 		enteteCellule.style.verticalAlign = "center"
@@ -393,15 +399,19 @@ function creerEntete(grilleJeu: HTMLTableElement) {
 		entete.append(enteteCellule)
 	}
 
+	// Ajout de l'entête à la grille de jeu
 	grilleJeu.append(entete)
 }
 
+// Fonction pour faire les lignes de la grille
 function creerLignes(grilleJeu: HTMLTableElement, mode: string) {
 
+	// Pour chaque ligne de la grille
 	for (let i = 0; i < 10; i++) {
 		const ligne = document.createElement('tr')
 		ligne.style.backgroundColor = "#ffffff"
 
+		// Création de la première cellule qui comporte uniquement le numéro de la ligne
 		const numeroCellule = document.createElement('td')
 		numeroCellule.style.textAlign = "center"
 		numeroCellule.style.verticalAlign = "middle"
@@ -409,26 +419,35 @@ function creerLignes(grilleJeu: HTMLTableElement, mode: string) {
 		numeroCellule.append(`${i + 1}`)
 		ligne.append(numeroCellule)
 
+		// Pour chaque cellule de la grille
 		for (let j = 0; j < 10; j++) {
+			// On crée une cellule qu'on rempli d'eau 
 			const cellule = document.createElement('td')
 			cellule.classList.add("case-grille")
 			cellule.classList.add("eau")
+
+			// On la rend cliquable si c'est l'adversaire
 			if (mode === 'adversaire') {
 				cellule.classList.add('cliquable')
 			}
+
+			// On donne à chaque cellule un id allant de 0 à 99
 			cellule.id = `${10 * i + j}`
 
+			// On ajoute la cellule à la ligne
 			ligne.append(cellule)
 		}
 
+		// On ajoute la ligne à la grille
 		grilleJeu.append(ligne)
 	}
 }
 
+// On crée les grilles du joueur et de l'adevrsaire 
 creerGrille("joueur", nomJoueur)
 creerGrille("adversaire", "En attente...")
 
-
+// Création des bateaux avec leurs tailles 
 const porteAvions: BATEAU = { Taille: 5 };
 const croiseur: BATEAU = { Taille: 4 };
 const contreTorpilleur1: BATEAU = { Taille: 3 };
@@ -440,84 +459,69 @@ const BATEAUX = [porteAvions, croiseur, contreTorpilleur1, contreTorpilleur2, to
 
 let bateauSelectionne: any
 
+// Fonction appelée pour poser les bateaux
 function placerBateau(bateau: BATEAU, emplacement: number) {
-	const casesJouables = document.querySelectorAll('#joueur td.eau')
-	const orientation = SELECTEUR_BATEAUX?.getAttribute("id")
-	//console.log(emplacement)
-	let emplacementValide: any
-	//let limite = Math.ceil(emplacement / 10) * 10
-	//console.log(limite)
 
+	// On récupère les cases jouables
+	const casesJouables = document.querySelectorAll('#joueur td.eau')
+
+	// On récupére l'orientation actuelle
+	const orientation = SELECTEUR_BATEAUX?.getAttribute("id")
+	let emplacementValide: any
+
+	// Si on est à l'horizontal
 	if (orientation === 'horizontaux') {
+		// On vérife si il y a la place pour le mettre
 		if (Math.floor((Number(emplacement) + bateau.Taille - 1)/10) == Math.floor(emplacement/10)) {
 			emplacementValide = emplacement
-		} else {
+		} 
+		// Si ce n'est pas le cas, on le met là où il y a de la place
+		else {
 			emplacementValide = Math.ceil(emplacement/10)*10-bateau.Taille
 		}
-	} else {
+	} 
+	// Si on est à la verticale
+	else {
+		// On vérife si il y a la place pour le mettre
 		if ((Number(emplacement)/10 + bateau.Taille - 1) < 10) {
 			emplacementValide = emplacement
-		} else {
+		} 
+		// Si ce n'est pas le cas, on le met là où il y a de la place
+		else {
 			emplacementValide = Number(emplacement) - 10*(bateau.Taille - 1)
 		}
 	}
 
-
-	//console.log(emplacementValide)
-
 	let casesBateau: Element[] = []
 
-	for (let i = 0; i < bateau.Taille; i++)
+	// On note toutes les cases occupées par le bateau
+	for (let i = 0; i < bateau.Taille; i++){
 		if (orientation === 'horizontaux') {
 			casesBateau.push(casesJouables[Number(emplacementValide) + i ])
-		} else {
+		} 
+		else {
 			casesBateau.push(casesJouables[Number(emplacementValide) + 10*i])
 		}
-
-	//console.log(casesBateau)
-	/*
-	let valide
-
-	if (orientation === 'horizontaux') {
-		casesBateau.every((_case, indice) => {
-			if (emplacement > 90) {
-				valide = Number(casesBateau[0].id) % 10 - 1 <= 10 - (casesBateau.length - indice)
-			} else {
-				valide = Number(casesBateau[0].id) % 10 <= 10 - (casesBateau.length - indice)
-			}
-
-		})
-	} else {
-		casesBateau.every((_case, indice) => {
-			valide = Number(casesBateau[0].id) < 90 + (10 * indice + 1)
-		})
 	}
-
-	console.log(valide)
-	*/
 	const libre = casesBateau.every(_case => !_case.classList.contains("occupee"))
 
-	//console.log(libre)
-
+	// On met à jour la grille et on retire le bateau de la liste 
 	if (libre) {
 		casesBateau.forEach(_case => {
 			_case.classList.add(`${emplacementValide}-${bateau.Taille}`)
 			_case.classList.add("bateau")
 			_case.classList.add("occupee")
-			//_case.classList.remove("eau")
 			bateauSelectionne.remove()
 		})
 		bateauJoueur++
 	}
 }
 
-
+// Ajoute un evenement quand on attrape un bateau pour le poser 
 const placementBateaux = Array.prototype.slice.call(SELECTEUR_BATEAUX?.children)
 placementBateaux.forEach(placementBateau => {
 	placementBateau.addEventListener("dragstart", selectionnerBateau)
 })
-
-
 
 function selectionnerBateau(bateau: any) {
 	bateauSelectionne = bateau.target
@@ -542,30 +546,31 @@ function placer(bateau: any) {
 
 const boutonTourner = document.querySelector('#tourner')
 
+// Fonction pour changer l'orientation des bateaux
 function tournerBateaux() {
 
+	// On récupère l'orirentation actuelle, et on la même à jour
 	const textBoutonTourner = document.querySelector('#orientation')
 	textBoutonTourner!.innerHTML = textBoutonTourner?.innerHTML === "verticaux" ? "horizontaux" : "verticaux"
 
 	const listeBateaux = Array.prototype.slice.call(SELECTEUR_BATEAUX?.children);
-	//console.log()
 
-
+	// On met à jour chaque bateau
 	if (SELECTEUR_BATEAUX?.getAttribute("id") === "horizontaux") {
 		listeBateaux.forEach(listeBateaux => {
 			listeBateaux.style.transform = 'rotate(90deg)';
 		})
 		SELECTEUR_BATEAUX?.setAttribute("id", "verticaux")
-	} else {
+	} 
+	else {
 		listeBateaux.forEach(listeBateaux => {
 			listeBateaux.style.transform = "";
 		})
 		SELECTEUR_BATEAUX?.setAttribute("id", "horizontaux")
 	}
-
-
 }
 
+// On lie la fonction et le bouton
 boutonTourner?.addEventListener('click', tournerBateaux)
 
 
