@@ -97,6 +97,7 @@ socketJeu.on('idJoueur', (idJoueur: number) => {
 		// Si c'est le Joueur 1
 		if (identifiantJoueurConnecte === 0) {
 			nbJoueur = 1
+			document.title = "Joueur 1 | Pourquoi Paul ?"
 			// Nom du joueur
 			nomJoueur = "Joueur 1"
 
@@ -113,7 +114,7 @@ socketJeu.on('idJoueur', (idJoueur: number) => {
 		// Si c'est le Joueur 2
 		} else if (identifiantJoueurConnecte === 1) {
 			nbJoueur = 2
-
+			document.title = "Joueur 2 | Pourquoi Paul ?"
 			// Nom du joueur
 			nomJoueur = "Joueur 2"
 
