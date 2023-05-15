@@ -206,6 +206,22 @@ socketJeu.on("actualiserTour", (infoTour : string, gagner : boolean) => {
 
 })
 
+socketJeu.on("tireAdverse", (cible : number)  => {
+	const caseCiblee = document.querySelectorAll(`#joueur td.eau`)
+
+	caseCiblee.forEach((td) => {
+		if (td.id === String(cible)){
+			if (td?.classList.contains('occupee')){
+				td.classList.add("touche-joueur")
+			} else {
+				td?.classList.add("rate-joueur")
+		}
+
+		}
+	})
+
+})
+
 // Fonction pour vérifier si il y a un gagant ou non
 function verifierGagner() {
 	return !bateauAdversaire
@@ -280,7 +296,7 @@ function tirer(_case: any) {
 
 // Fonction appelée au début de la partie
 function commencerPartie() {
-
+	console.log("aa")
 	const infoPartie = document.querySelector("#dernier-coup")
 	infoPartie!.innerHTML = ""
 
@@ -295,7 +311,7 @@ function commencerPartie() {
 		socketJeu.emit("joueurPret", logJoueurId)
 
 		// On enlève le fait de pouvoir cliquer sur le bouton
-		BOUTON_COMMENCER?.removeEventListener('click', commencerPartie)
+		//BOUTON_COMMENCER?.removeEventListener('click', commencerPartie)
 
 		// On change son état en prêt
 		const logJoueur = document.querySelector(`.lj${logJoueurId}`)
@@ -324,7 +340,7 @@ function commencerPartie() {
 		socketJeu.emit("grilleJoueur", grille, logJoueurId)
 
 		// On vérifie si l'adversaire est prêt également, on le signale au serveur
-		if (!adversairePret){
+		if (adversairePret){
 			const premierTour = Math.random() < 0.5 ? 0 : 1
 			socketJeu.emit("joueursPrets", premierTour)	
 		}
