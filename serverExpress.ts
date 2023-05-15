@@ -144,6 +144,7 @@ io.on("connection", (socket) => {
         } else {
             verifTouche = grilleJ1[cible]
         }
+        socket.broadcast.emit("tireAdverse", cible)
         fn(verifTouche)
     })
 
